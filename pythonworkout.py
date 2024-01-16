@@ -106,7 +106,7 @@ if 'center' in locals():
        center('') == None and
        center('thor') == 'ho'):
         points += 1
-        print("center() correct! +2")
+        print("center() correct! +1")
     else:    
         print("center() incorrect.")
 else:
@@ -123,7 +123,7 @@ if 'nuke_last' in locals():
     nuke_last(stuff,'i')
     if ''.join(stuff) == 'abcdefedbcaugioadsf':
         points += 1
-        print("nuke_last() correct! +2")
+        print("nuke_last() correct! +1")
     else:    
         print("stuff = {}".format(''.join(stuff)))
         print("nuke_last() incorrect.")
@@ -166,7 +166,7 @@ if 'wondrous_count' in locals():
         75128138246:225, 75128138247:1228 }
     if all([wondrous_count(tv) == tw for tv,tw in test_vals.items()]):
         points += 1
-        print("wondrous_count() correct! +2")
+        print("wondrous_count() correct! +1")
     else:    
         print("wondrous_count() incorrect.")
     
