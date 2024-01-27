@@ -29,9 +29,11 @@ for i in range(0,len(computed_s)):
     computed_s[i] = (d[i+1] - d[i]) / delta_x  
 
 # Plot these suckers.
-plt.plot(d, color="blue", label="distance")
-plt.plot(s, color="green", label="speed")
-plt.plot(computed_s, color="red", linewidth=9, linestyle="dashed", label="computed speed")
+plt.plot(delta_x * np.arange(0,len(d)), d, color="blue",
+    label="distance")
+plt.plot(delta_x * np.arange(0,len(s)), s, color="green", label="speed")
+plt.plot(delta_x * np.arange(0,len(computed_s)), computed_s,
+    color="red", linewidth=5, linestyle="dashed", label="computed speed")
 plt.xlabel("hours")
 plt.ylabel("miles")
 plt.legend()
