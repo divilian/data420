@@ -41,11 +41,15 @@ V[0] = 1
 # The main simulation loop. For each time period...
 for i in range(1, len(x)):
 
-    # ...calculate the rate of each quantity at this point in time, and...
-    Aprime = (itox(i) - start_x) * aggressiveness   # abd/year
-    Vprime = V[i-1] * bloodthirstiness              # vamp/year
+    # ...calculate the flows...
+    abduction = (itox(i) - start_x) * aggressiveness       # abd/year
+    vampirization = V[i-1] * bloodthirstiness              # vamp/year
 
-    # ...increment the quantities by that amount, times our time period.
+    # ...calculate the rates...
+    Aprime = abduction
+    Vprime = vampirization
+
+    # ...increment the stocks.
     A[i] = A[i-1] + Aprime * delta_x                # abd
     V[i] = V[i-1] + Vprime * delta_x                # vamp
 
