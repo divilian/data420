@@ -6,6 +6,10 @@ delta_x = 1/365    # years
 start_x = 1940     # year
 
 init_human_pop = 2.3e9   # humans in 1940
+carrying_cap_of_earth = 8e9
+
+fertility = .2   # ((babies)/yr)/mom
+mom_fraction = .5 * .7    # moms/human
 
 # Given a point in time (year) return the corresponding array index (unitless).
 def xtoi(x):
@@ -27,7 +31,7 @@ bloodthirstiness = .1   # (vampires/year)/vampire
 
 # Our x-values: the precise times at which we will measure and compute the
 # quantities of interest.
-x = np.arange(start_x, 3214, delta_x)   # years
+x = np.arange(start_x, 5274, delta_x)   # years
 
 # Our "stock variables": one for the number of UFO-abducted victims, and one
 # for the number of vampires. They are arrays, of course, because we want to
@@ -49,6 +53,7 @@ for i in range(1, len(x)):
     # Our logistic factor here is "what fraction of the total population is
     # still composed of eligible victims?"
     logistic_factor = 1 - (V[i-1] + A[i-1]) / (V[i-1] + A[i-1] + H[i-1])
+    logistic_factor2 = 1 - H[i-1] / carrying_cap_of_earth
 
     # ...calculate the flows...
     abduction = (itox(i) - start_x) * aggressiveness       # abd/year
@@ -57,11 +62,13 @@ for i in range(1, len(x)):
     # Let's keep it real, guys.
     abduction *= logistic_factor
     vampirization *= logistic_factor
+    birth = H[i-1] * fertility * mom_fraction
+    birth *= logistic_factor2
 
     # ...calculate the rates...
     Aprime = abduction                      # individuals/year
     Vprime = vampirization                  # individuals/year
-    Hprime = -abduction - vampirization     # individuals/year
+    Hprime = + birth - abduction - vampirization     # individuals/year
 
     # ...increment the stocks.
     A[i] = A[i-1] + Aprime * delta_x                # abd
