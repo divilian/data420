@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 delta_x = 1/60   # hour
 start_x = 0      # hour
-end_x = 48000       # hour
+end_x = 48       # hour
 
 x = np.arange(start_x, end_x, delta_x)
 
