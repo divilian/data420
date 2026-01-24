@@ -14,12 +14,12 @@ s = np.array([30,54,75,75,75,70,70,70,0,70,35])  # mph
 # Later on in this example, we replaced those hardcoded speeds with randomly
 # generated speeds, and we "measured" those fictitious speeds 10 times as
 # often.
-s = np.random.uniform(0, 100, len(s)*10)
+s = np.random.uniform(0, 100, len(s))
 
 # Create our independent variable array. It records the real-world "meaning" of
 # the time associated with each element of the array.
 start_t = 9  # hours (military time)
-delta_t = .1 # hours
+delta_t = 1  # hours
 t = np.arange(start_t, start_t + len(s) * delta_t, delta_t)  # hours
 
 # Calc II: Integrate speed to get distance.
@@ -50,7 +50,8 @@ speed_ax.plot(t, s2, color="purple", linewidth=5, linestyle="dotted",
     label="speed (mph)")
 speed_ax.set_xlabel("time (military)")
 speed_ax.set_ylabel("speed (mph)")
-dist_ax.plot(t, d[:-1], color="blue", label="dist (miles) from WC")
-dist_ax.set_ylabel("dist (miles) from WC")
+dist_ax.plot(t, d[:-1], color="blue", label="dist (miles) from West Coast")
+dist_ax.set_ylabel("dist (miles) from West Coast")
 
 plt.legend()
+plt.show()
