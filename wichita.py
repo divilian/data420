@@ -41,7 +41,7 @@ for i in range(len(s2)):
 # that our reconstructed speed is identical to the original speed. (Thus
 # proving the Fundamental Theorem of Calculus: integration and differentiation
 # are inverses.)
-plt, axs = plt.subplots(nrows=2, ncols=1, sharex=True, figsize=(13,8))
+fig, axs = plt.subplots(nrows=2, ncols=1, sharex=True, figsize=(13,8))
 dist_ax = axs[0]
 speed_ax = axs[1]
 
