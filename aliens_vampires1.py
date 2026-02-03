@@ -48,6 +48,6 @@ for i in range(1,len(t)):
 
 
 fig, ax = plt.subplots()
-ax.plot(t, A, color="green")
-ax.plot(t, V, color="red")
-
+ax.plot(t, A, color="green", label="alien abductions")
+ax.plot(t, V, color="red", label="vampires")
+fig.legend()
