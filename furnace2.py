@@ -1,7 +1,10 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
+from tqdm import tqdm
 
+# Create an array of temperature points that kinda sorta mimics what the earth
+# actually does.
 def get_outside_temp_vec(
     delta_t:float,  # days
     num_days:int,
@@ -11,63 +14,91 @@ def get_outside_temp_vec(
     noise:float
 ) -> np.ndarray:
 
-    t = np.arange(0, num_days, delta_t) # days (6 months, Jan 1 to Jun 30)
+    t = np.arange(0, num_days, delta_t)                                # days
 
-    baseline = np.repeat(baseline,len(t))   # degF
-    seasonal = seasonal_fluc * -np.cos(t * 2 * 3.14159 / (365))
-    daily = daily_fluc * np.sin(t * 2 * 3.14159 / (1))
-    noise = np.random.normal(0,noise,len(t))
+    baseline = np.repeat(baseline,len(t))                              # degF
+    seasonal = seasonal_fluc * -np.cos(t * 2 * 3.14159 / (365))        # degF
+    daily = daily_fluc * np.sin(t * 2 * 3.14159 / (1))                 # degF
+    noise = np.random.normal(0,noise,len(t))                           # degF
     return baseline + seasonal + daily + noise
 
-thermostat = 68               # degF
-num_days = 365
 
-insulation_loss_rate = .3     # (degF/hr)/degF
-furnace_power = 16             # degF/hr
+# Put the whole simulation in a function, so we can parameter sweep it.
+def run_sim(
+    thermostat,
+    baseline,
+    daily_fluc,
+    seasonal_fluc,
+    noise,
+):
+    num_days = 365
 
-delta_t = 1/60                # hrs
-t = np.arange(0,24*num_days,delta_t)   # hrs
+    insulation_loss_rate = .3     # (degF/hr)/degF
+    furnace_power = 16             # degF/hr
 
-outside_temp = get_outside_temp_vec(delta_t / 24, num_days, 57, 16, 21, 2)
+    delta_t = 1/60                # hrs
+    t = np.arange(0,24*num_days,delta_t)   # hrs
 
-T = np.empty(len(t))          # degF
-T[0] = 67                     # degF
+    outside_temp = get_outside_temp_vec(
+        delta_t / 24,
+        num_days,
+        baseline,
+        daily_fluc,
+        seasonal_fluc,
+        noise,
+    )
 
-furnace_on = np.empty(len(t), dtype=bool)
-furnace_on[0] = True
+    T = np.empty(len(t))          # degF
+    T[0] = 67                     # degF
 
-hysteresis = 5 # degF
+    furnace_on = np.empty(len(t), dtype=bool)
+    furnace_on[0] = True
 
-for i in range(1, len(t)):
+    hysteresis = 5 # degF
 
-    if T[i-1] < thermostat - hysteresis:
-        furnace_on[i] = True
-    elif T[i-1] > thermostat + hysteresis:
-        furnace_on[i] = False
-    else:
-        furnace_on[i] = furnace_on[i-1]
-    
-    # ...compute flows...
-    if furnace_on[i]:
-        heating = furnace_power
-    else:
-        heating = 0
+    for i in range(1, len(t)):
 
-    leakage = insulation_loss_rate * (T[i-1] - outside_temp[i-1])
+        if T[i-1] < thermostat - hysteresis:
+            furnace_on[i] = True
+        elif T[i-1] > thermostat + hysteresis:
+            furnace_on[i] = False
+        else:
+            furnace_on[i] = furnace_on[i-1]
+        
+        # ...compute flows...
+        if furnace_on[i]:
+            heating = furnace_power
+        else:
+            heating = 0
 
-    T_prime = heating - leakage
+        leakage = insulation_loss_rate * (T[i-1] - outside_temp[i-1])
 
-    T[i] = T[i-1] + T_prime * delta_t
+        T_prime = heating - leakage
 
-plt.plot(t,T,color="orange",label="inside temp")
-plt.plot(t,furnace_on * 10,color="gray",linewidth=2,label="furnace on/off")
-plt.plot(t,outside_temp, color="blue", linestyle="dashed",
-    label="outside temp")
-plt.axhline(y=thermostat, color="brown", linestyle="dotted", label="thermostat")
-plt.xlabel("hours")
-plt.ylabel("deg F")
-plt.ylim(top=100)
-plt.legend()
-plt.show()
+        T[i] = T[i-1] + T_prime * delta_t
 
-print(f"The furnace was on {furnace_on.sum()/len(furnace_on)*100:.1f}% today.")
+    # Return our one lonely d.v. (dependent variable), throwing away all other
+    # details of this simulation run.
+    return furnace_on.sum()/len(furnace_on)*100
+
+# Code for plotting a single simulation in detail (now commented out for our
+# parameter sweep.)
+#plt.plot(t,T,color="orange",label="inside temp")
+#plt.plot(t,furnace_on * 10,color="gray",linewidth=2,label="furnace on/off")
+#plt.plot(t,outside_temp, color="blue", linestyle="dashed",
+#    label="outside temp")
+#plt.axhline(y=thermostat, color="brown", linestyle="dotted", label="thermostat")
+#plt.xlabel("hours")
+#plt.ylabel("deg F")
+#plt.ylim(top=100)
+#plt.legend()
+#plt.show()
+
+# Parameter sweep: run the simulation many times, for varying values of our
+# i.v. (independent variable), capturing and recording the d.v. for each one.
+thermostat_values = np.arange(0,200,5)
+percentage_furnace_ons = np.empty(len(thermostat_values))
+for i in tqdm(list(range(len(thermostat_values)))):
+    percentage_furnace_ons[i] = run_sim(thermostat_values[i], 57, 16, 30,2)
+
+plt.plot(thermostat_values, percentage_furnace_ons)
