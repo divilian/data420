@@ -98,6 +98,17 @@ def run_sim(
 thermostat_values = np.arange(0,200,5)
 percentage_furnace_ons = np.empty(len(thermostat_values))
 for i in tqdm(list(range(len(thermostat_values)))):
-    percentage_furnace_ons[i] = run_sim(thermostat_values[i], 57, 16, 30,2)
+    percentage_furnace_ons[i] = run_sim(
+        thermostat_values[i],
+        baseline=57,
+        daily_fluc=16,
+        seasonal_fluc=30,
+        noise=2,
+        insulation_loss_rate=.3,
+        furnace_power=16,
+    )
 
-plt.plot(thermostat_values, percentage_furnace_ons)
+fig, ax = plt.subplots()
+ax.plot(thermostat_values, percentage_furnace_ons)
+ax.set_xlabel(r'Thermostat ($^\circ$F)')
+ax.set_ylabel('Percent furnace on (%)')
