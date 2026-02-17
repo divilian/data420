@@ -25,16 +25,15 @@ def get_outside_temp_vec(
 
 # Put the whole simulation in a function, so we can parameter sweep it.
 def run_sim(
-    thermostat,
-    baseline,
-    daily_fluc,
-    seasonal_fluc,
-    noise,
+    thermostat,                  # our desired indoor temp (degF)
+    baseline,                    # overall avg outdoor temp (degF)
+    daily_fluc,                  # +/- due to daily effects (degF)
+    seasonal_fluc,               # +/- due to seasonal effects (degF)
+    noise,                       # +/- due to random effects (degF)
+    insulation_loss_rate = .3,   # how fast we lose heat (degF/hr)/degF
+    furnace_power = 16           # how fast our furnace heats degF/hr
 ):
     num_days = 365
-
-    insulation_loss_rate = .3     # (degF/hr)/degF
-    furnace_power = 16             # degF/hr
 
     delta_t = 1/60                # hrs
     t = np.arange(0,24*num_days,delta_t)   # hrs
