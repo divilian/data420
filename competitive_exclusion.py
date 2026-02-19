@@ -13,6 +13,7 @@ def run_sim(
     depr_rate_d = .1,         # ($depreciated/$capital)/week
     depr_rate_pj = .1,        # ($depreciated/$capital)/week
     economy_cc = 10000,       # $/week (in earnings) saturation point
+    earnings_noise = .0001,   # std dev of each company's earnings ($/week)
     plot_axis = None,         # draw plot on this axis (or None)
     plot_title = "",          # subtitle for plot, if any
     main=True
@@ -35,8 +36,8 @@ def run_sim(
 
     for i in range(1,len(t)):
 
-        #earnings_rate_d += np.random.normal(0, .001, 1)[0]
-        #earnings_rate_pj += np.random.normal(0, .001, 1)[0]
+        earnings_rate_d += np.random.normal(0, earnings_noise, 1)[0]
+        earnings_rate_pj += np.random.normal(0, earnings_noise, 1)[0]
 
         logistic_factor = 1 - (earnings_d + earnings_pj) / economy_cc
 
