@@ -11,7 +11,7 @@ def get_outside_temp_vec(
     baseline:float,
     daily_fluc:float,
     seasonal_fluc:float,
-    noise:float
+    noise:float,
 ) -> np.ndarray:
 
     t = np.arange(0, num_days, delta_t)                                # days
@@ -31,7 +31,8 @@ def run_sim(
     seasonal_fluc,               # +/- due to seasonal effects (degF)
     noise,                       # +/- due to random effects (degF)
     insulation_loss_rate = .3,   # how fast we lose heat (degF/hr)/degF
-    furnace_power = 16           # how fast our furnace heats degF/hr
+    furnace_power = 16,          # how fast our furnace heats degF/hr
+    plot=False,
 ):
     num_days = 365
 
@@ -64,7 +65,6 @@ def run_sim(
         else:
             furnace_on[i] = furnace_on[i-1]
         
-        # ...compute flows...
         if furnace_on[i]:
             heating = furnace_power
         else:
@@ -76,29 +76,30 @@ def run_sim(
 
         T[i] = T[i-1] + T_prime * delta_t
 
+    if plot:
+        # Code for plotting a single simulation in detail (now commented out for our
+        # parameter sweep.)
+        plt.plot(t,T,color="orange",label="inside temp")
+        plt.plot(t,furnace_on * 10,color="gray",linewidth=2,label="furnace on/off")
+        plt.plot(t,outside_temp, color="blue", linestyle="dashed",
+            label="outside temp")
+        plt.axhline(y=thermostat, color="brown", linestyle="dotted", label="thermostat")
+        plt.xlabel("hours")
+        plt.ylabel("deg F")
+        plt.ylim(top=100)
+        plt.legend()
+
     # Return our one lonely d.v. (dependent variable), throwing away all other
     # details of this simulation run.
-    return furnace_on.sum()/len(furnace_on)*100
+    return furnace_on.sum()/len(furnace_on)*100, T.mean()
 
-# Code for plotting a single simulation in detail (now commented out for our
-# parameter sweep.)
-#plt.plot(t,T,color="orange",label="inside temp")
-#plt.plot(t,furnace_on * 10,color="gray",linewidth=2,label="furnace on/off")
-#plt.plot(t,outside_temp, color="blue", linestyle="dashed",
-#    label="outside temp")
-#plt.axhline(y=thermostat, color="brown", linestyle="dotted", label="thermostat")
-#plt.xlabel("hours")
-#plt.ylabel("deg F")
-#plt.ylim(top=100)
-#plt.legend()
-#plt.show()
 
 # Parameter sweep: run the simulation many times, for varying values of our
 # i.v. (independent variable), capturing and recording the d.v. for each one.
 thermostat_values = np.arange(0,200,5)
 percentage_furnace_ons = np.empty(len(thermostat_values))
 for i in tqdm(list(range(len(thermostat_values)))):
-    percentage_furnace_ons[i] = run_sim(
+    percentage_furnace_ons[i], average_temp_indoors[i] = run_sim(
         thermostat_values[i],
         baseline=57,
         daily_fluc=16,
@@ -107,8 +108,19 @@ for i in tqdm(list(range(len(thermostat_values)))):
         insulation_loss_rate=.3,
         furnace_power=16,
     )
-
 fig, ax = plt.subplots()
 ax.plot(thermostat_values, percentage_furnace_ons)
 ax.set_xlabel(r'Thermostat ($^\circ$F)')
 ax.set_ylabel('Percent furnace on (%)')
+
+# Comment in for single simulation run.
+#perc_furnace_on = run_sim(
+#    thermostat=78,                  # our desired indoor temp (degF)
+#    baseline=77,                    # overall avg outdoor temp (degF)
+#    daily_fluc=30,                  # +/- due to daily effects (degF)
+#    seasonal_fluc=13,               # +/- due to seasonal effects (degF)
+#    noise=5,                        # +/- due to random effects (degF)
+#    insulation_loss_rate = .5,      # how fast we lose heat (degF/hr)/degF
+#    furnace_power = 36,             # how fast our furnace heats degF/hr
+#    plot=True)
+#print(f"The furnace was on {perc_furnace_on:.2f}% of the time.")
