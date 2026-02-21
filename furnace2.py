@@ -91,7 +91,7 @@ def run_sim(
 
     # Return our one lonely d.v. (dependent variable), throwing away all other
     # details of this simulation run.
-    return furnace_on.sum()/len(furnace_on)*100, T.mean()
+    return furnace_on.sum()/len(furnace_on)*100
 
 
 # Parameter sweep: run the simulation many times, for varying values of our
@@ -99,7 +99,7 @@ def run_sim(
 thermostat_values = np.arange(0,200,5)
 percentage_furnace_ons = np.empty(len(thermostat_values))
 for i in tqdm(list(range(len(thermostat_values)))):
-    percentage_furnace_ons[i], average_temp_indoors[i] = run_sim(
+    percentage_furnace_ons[i] = run_sim(
         thermostat_values[i],
         baseline=57,
         daily_fluc=16,
