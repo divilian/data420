@@ -108,8 +108,8 @@ def run_suite(num_runs: int):
         parameters=params,
         rng=seeds,               # one replication per seed
         max_steps=500,
-        #data_collection_period=-1,
-        #number_processes=None,      # or None to use all available CPUs
+        data_collection_period=-1,
+        number_processes=None,
     )
 
     return pd.DataFrame(results)
